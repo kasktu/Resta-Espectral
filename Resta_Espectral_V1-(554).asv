@@ -675,7 +675,6 @@ function varargout = resta_espectral_OutputFcn(hObject, eventdata, handles)
                                                                                                     % hObject handle to solap_edit (see GCBO)
                                                                                                     % eventdata reserved - to be defined in a future version of MATLAB
                                                                                                     % handles empty - handles not created until after all CreateFcns called
-                                                                                                    
                                                                                                     % Hint: edit controls usually have a white background on Windows.
                                                                                                     % See ISPC and COMPUTER.
                                                                                                     if ispc
@@ -683,7 +682,6 @@ function varargout = resta_espectral_OutputFcn(hObject, eventdata, handles)
                                                                                                     else
                                                                                                         set(hObject,'BackgroundColor',get(0,'defaultUicontrolBackgroundColor'));
                                                                                                     end
-                                                                                                    
                                                                                                     function solap_edit_Callback(hObject, eventdata, handles)
                                                                                                         % hObject handle to solap_edit (see GCBO)
                                                                                                         % eventdata reserved - to be defined in a future version of MATLAB
