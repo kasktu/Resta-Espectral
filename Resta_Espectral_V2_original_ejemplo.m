@@ -1,13 +1,12 @@
 % Parámetros del sistema
 fs = 40000; % Frecuencia de muestreo (Hz)
-
 % Leer señal desde archivo WAV
 [y, fs_orig] = audioread('Ruido Blanco.wav');
 % Asegurarse de que la señal tenga la misma frecuencia de muestreo que se especifica
 y = resample(y, fs, fs_orig);
 
 % División en bandas de frecuencia
-num_bands = 3; % Número de bandas de frecuencia
+num_bands = 9; % Número de bandas de frecuencia
 frequencies = linspace(0, fs/2, num_bands+1); % Frecuencias de corte de las bandas
 filtered_signals = cell(1, num_bands); % Celdas para almacenar las señales filtradas
 
@@ -15,31 +14,31 @@ filtered_signals = cell(1, num_bands); % Celdas para almacenar las señales filt
 t = (1/fs:1/fs:length(y)/fs);
 
 for i = 1:num_bands
-    % Diseño del filtro IIR para cada banda de frecuencia
+    % Diseño del filtro FIR para cada banda de frecuencia
     cutoff_low = max(frequencies(i), 0.1); % Frecuencia de corte inferior
     cutoff_high = min(frequencies(i+1), 0.9); % Frecuencia de corte superior
-    
-    % Orden del filtro IIR
-    filter_order = 2;
-    
-    % Coeficientes del filtro IIR con regularización
-    lambda = 0.01; % Valor de regularización
-    filter_freqs = [0, cutoff_low, cutoff_high, fs/2];
-    [~, idx] = sort(filter_freqs);
-    filter_coeffs = firls(filter_order, filter_freqs(idx)/(fs/2), [0 0 1 1], [1 lambda]);
-        
+
+    normalized_cutoffs = [cutoff_low cutoff_high] / (fs/2); % Frecuencias de corte normalizadas
+
+    % Asegurarse de que los valores de las frecuencias de corte estén dentro del rango
+    normalized_cutoffs(2) = max(normalized_cutoffs(2), normalized_cutoffs(1) + 0.001);
+    normalized_cutoffs(2) = min(normalized_cutoffs(2), 1);
+
+    filter_order = 80; % Orden del filtro FIR
+    filter_coeffs = fir1(filter_order, normalized_cutoffs); % Coeficientes del filtro FIR
+
     % Almacenar los coeficientes del filtro en la celda correspondiente
     filtered_signals{i} = filtfilt(filter_coeffs, 1, y);
 end
 
 % Combinación de las señales filtradas de las bandas de frecuencia
-denoised_signal = sum(cat(num_bands, filtered_signals{:}), num_bands);
+denoised_signal = sum(cat(3, filtered_signals{:}), 3);
 % Señal final filtrada
-excluded_signals = y - denoised_signal;
+filtered_signal = y - denoised_signal;
 
-% % Aumentar el volumen de la señal filtrada
-% amplification_factor = 1; % Factor de amplificación (ajusta según sea necesario)
-% filtered_signal_amplified = filtered_signal * amplification_factor;
+% Aumentar el volumen de la señal filtrada
+amplification_factor = 2; % Factor de amplificación (ajusta según sea necesario)
+filtered_signal_amplified = filtered_signal * amplification_factor;
 
 % Gráficos de las señales
 figure;
@@ -55,22 +54,23 @@ for i = 1:num_bands
 end
 
 subplot(num_bands+3, 1, num_bands+2);
-plot(t, excluded_signals);
+plot(t, denoised_signal);
 title('Señal excluida');
 subplot(num_bands+3, 1, num_bands+3);
-plot(t, denoised_signal);
-title('Señal filtrada');
+plot(t, filtered_signal_amplified);
+title('Señal filtrada amplificada');
+
+% Guardar la señal filtered_signal_amplified en un archivo WAV
+output_filename = 'Ruido Blanco_filtrado.wav';
+audiowrite(output_filename, filtered_signal_amplified, fs);
+
+% Reproducir la señal filtered_signal_amplified
+sound(denoised_signal, fs);
+
+
 
 figure
 hold on
-plot(t,y);
+plot(t,filtered_signal_amplified)
+plot(t,y)
 plot(t,denoised_signal);
-plot(t,excluded_signals);
-
-% Guardar la señal filtrada en un archivo WAV
-%output_filename = 'Ruido Blanco_filtrado_IIR.wav';
-%audiowrite(output_filename, filtered_signal, fs);
-
-% Reproducir la señal filtrada
-sound(denoised_signal, fs);
-
