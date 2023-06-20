@@ -775,7 +775,7 @@ function varargout = resta_espectral_OutputFcn(hObject, eventdata, handles)
                                                                                                                                         msgbox('Introducir el procentaje de solapamiento','CAMPO VACIO','error');
                                                                                                                                     case 5
                                                                                                                                     msgbox('Introducir un Metodo de Deteccion de actividad vocal','CAMPO VACIO','error');
-end
+                                                                                                                                    end
 % Funcion que nos permite variar el tamaño de la ventana resta_espectral
 function ResizeFcn(hObject, eventdata, handles)
 % Get the figure size and position
@@ -1227,7 +1227,7 @@ switch met_VAD
     % tamaño de la ventana de analisis
     case 4
     D_voz = vad_homo(Y,puntos,l_cep,landa);
-    end
+end
 i = 0;
 B = 2*B;
 f = fs/puntos*(0:puntos_1);
